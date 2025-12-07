@@ -24,28 +24,28 @@ pipeline {
             }
         }
 
-//         stage("Deploy to EC2") {
-//             steps {
-//                 withCredentials([
-//                     sshUserPrivateKey(credentialsId: 'EC2_KEY', keyFileVariable: 'SSH_KEY'),
-//                     string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST'),
-//                     usernamePassword(credentialsId: 'docker_creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')
-//                 ]) {
+        stage("Deploy to EC2") {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(credentialsId: 'EC2_KEY', keyFileVariable: 'SSH_KEY'),
+                    string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST'),
+                    usernamePassword(credentialsId: 'docker_creds', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')
+                ]) {
 
-//                     sh '''
-//     chmod 600 "$SSH_KEY"
+                    sh '''
+    chmod 600 "$SSH_KEY"
 
-//     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" ubuntu@"$EC2_HOST" << EOF
-//         echo "Connected to EC2"
-//         export DOCKER_USERNAME="$DOCKER_USERNAME"
-//         export DOCKER_PASSWORD="$DOCKER_PASSWORD"
-//         cd /home/ubuntu/React-ToDoList
-//         bash ~/React-ToDoList/deploy.sh
-// EOF
-// '''
+    ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" ubuntu@"$EC2_HOST" << EOF
+        echo "Connected to EC2"
+        export DOCKER_USERNAME="$DOCKER_USERNAME"
+        export DOCKER_PASSWORD="$DOCKER_PASSWORD"
+        cd /home/ubuntu
+        bash ~/deploy.sh
+EOF
+'''
 
-//                 }
-//             }
-//         }
+                }
+            }
+        }
     }
 }
