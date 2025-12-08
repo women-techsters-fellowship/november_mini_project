@@ -10,6 +10,7 @@ pipeline {
         stage("Build image and push") {
 
             steps {
+                echo 'Building the image and pushing....'
                 withCredentials([
                     usernamePassword(credentialsId:'docker_creds', usernameVariable:'DOCKER_USERNAME', passwordVariable:'DOCKER_PASSWORD')
                 ]) {

@@ -1,7 +1,10 @@
-FROM python:3.11-slim
+# ----------------------
+# 1️⃣ BUILDER STAGE
+# ----------------------
+FROM python:3.11-slim AS builder
 
-#Install system dependencies needed by pillow
-RUN apt-get update && apt-get install -y \
+# Install build dependencies required only for building wheels (Pillow, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     zlib1g-dev \
     libjpeg-dev \
@@ -9,20 +12,34 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     && rm -rf /var/lib/apt/lists/*
 
-
-# Set working directory
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Install Python dependencies into a temporary directory
 COPY requirements.txt .
-RUN pip3 install --default-timeout=100 --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --prefix=/install -r requirements.txt
 
-# Copy the rest of the application
+
+# ----------------------
+# 2️⃣ FINAL RUNTIME STAGE
+# ----------------------
+FROM python:3.11-slim
+
+# Install ONLY the runtime libraries (much smaller)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    zlib1g \
+    libjpeg62-turbo \
+    libfreetype6 \
+    libpng16-16 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy built Python packages from builder stage
+COPY --from=builder /install /usr/local
+
+# Copy only application files
 COPY . .
 
-# Expose Django default port
 EXPOSE 8000
 
-# Run the application
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
-
