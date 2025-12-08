@@ -15,10 +15,14 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            steps {
-                git branch: 'susan-demo', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
-            }
-        }
+    steps {
+        sh '''
+            mkdir -p ~/.ssh
+            ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+        '''
+        git branch: 'susan-demo', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
+    }   
+    }
 
         stage('Build Docker Image') {
             steps {
