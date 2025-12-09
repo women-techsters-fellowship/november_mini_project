@@ -8,7 +8,7 @@
 
 # Screenshot of Jenkins Job Console Output
 
-![Jnekinsfile](images/jenkins2.png)
+![Jnekinsfile](images/jenkinsoutput.png)
 
 
 # Screenshot of the app running live
