@@ -1,6 +1,6 @@
-# ----------------------
-# 1️⃣ BUILDER STAGE
-# ----------------------
+
+#BUILDER STAGE
+
 FROM python:3.11-slim AS builder
 
 # Install build dependencies required only for building wheels (Pillow, etc.)
@@ -18,10 +18,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir --prefix=/install -r requirements.txt
 
+#FINAL RUNTIME STAGE
 
-# ----------------------
-# 2️⃣ FINAL RUNTIME STAGE
-# ----------------------
 FROM python:3.11-slim
 
 # Install ONLY the runtime libraries (much smaller)
