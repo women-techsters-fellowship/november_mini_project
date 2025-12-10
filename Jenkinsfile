@@ -1,67 +1,46 @@
 pipeline {
+    agent any
 
-  agent any
-
-  environment {
-    IMAGE = "jemimahbyencitrimdan/nov_mini_project"
-    EC2_HOST = "<EC2_PUBLIC_IP>"
-    SSH_USER = "ubuntu"
-    DOCKERHUB_CRED = "dockerhub-creds"
-    EC2_SSH_CRED = "ec2-ssh-key"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps { checkout scm }
+    environment {
+        DOCKER_CREDENTIALS = 'dockerhub-creds' 
+        IMAGE_NAME = 'jemimahbyencitrimdan/nov_mini_project'
+        IMAGE_TAG = 'group-J'
     }
 
-    stage('Build image') {
-      steps {
-        script {
-          docker.withRegistry('', DOCKERHUB_CRED) {
-
-            def built = docker.build("${IMAGE}", "--pull .")
-
-            built.tag("${IMAGE}:${env.BUILD_NUMBER}")
-
-            env.IMAGE_TAG = "${IMAGE}:${env.BUILD_NUMBER}"
-          }
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage('Push image') {
-      steps {
-        script {
-          docker.withRegistry('', DOCKERHUB_CRED) {
-
-            docker.image("${IMAGE}").push()
-            docker.image(env.IMAGE_TAG).push()
-          }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                }
+            }
         }
-      }
-    }
 
-    stage('Deploy to EC2') {
-      steps {
-        sshagent (credentials: [EC2_SSH_CRED]) {
-          sh """
-            ssh -o StrictHostKeyChecking=no ${SSH_USER}@${EC2_HOST} \
-            'docker pull ${IMAGE}:${env.BUILD_NUMBER} && \
-             docker stop myapp || true && \
-             docker rm myapp || true && \
-             docker run -d --name myapp -p 80:8000 ${IMAGE}:${env.BUILD_NUMBER}'
-          """
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
+                }
+            }
         }
-      }
     }
 
-  }
-
-  post {
-    success { echo "Done" }
-    failure { echo "Failed" }
-  }
+    post {
+        success {
+            echo "Docker image built and pushed successfully."
+        }
+        failure {
+            echo "Pipeline failed."
+        }
+    }
 }
+
 
