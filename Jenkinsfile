@@ -13,8 +13,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 git branch: 'GROUP-J',
-                    url: 'https://github.com/women-techsters-fellowship/november_mini_project.git',
-                    credentialsId: 'github-creds'
+                    url: 'https://github.com/women-techsters-fellowship/november_mini_project.git'
             }
         }
 
