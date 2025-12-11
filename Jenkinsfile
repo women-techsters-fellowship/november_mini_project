@@ -5,14 +5,16 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  
         DOCKER_IMAGE = 'jemimahbyencitrimdan/nov_mini_project:group-J' 
         EC2_HOST = 'EC2_HOST@13.62.55.158'
-        SSH_CREDENTIALS= 'EC2_KEYPAIR'       
+        SSH_CREDENTIALS = 'EC2_KEYPAIR'       
         APP_PORT = '8000'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'GROUP-J', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
+                git branch: 'GROUP-J',
+                    url: 'https://github.com/women-techsters-fellowship/november_mini_project.git',
+                    credentialsId: 'github-creds'
             }
         }
 
@@ -42,7 +44,6 @@ pipeline {
             steps {
                 sshagent([SSH_CREDENTIALS]) {
                     script {
-                        // Stop existing container if running
                         sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
                             docker stop nov_app || true
