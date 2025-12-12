@@ -44,12 +44,12 @@ pipeline {
                 sshagent([SSH_CREDENTIALS]) {
                     script {
                         sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@51.20.66.116'
+                        ssh -o StrictHostKeyChecking=no ${EC2_HOST} <<'ENDSSH'
                             docker stop nov_app || true
                             docker rm nov_app || true
                             docker pull ${DOCKER_IMAGE}
                             docker run -d --name nov_app -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}
-                        '
+ENDSSH
                         """
                     }
                 }
@@ -66,5 +66,3 @@ pipeline {
         }
     }
 }
-
-
