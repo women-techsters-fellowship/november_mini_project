@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_PATH = "/home/tabitha/Documents/PROJ/november_mini_project"
         DOCKER_IMAGE = "wtabitha/tabs-app-python"
         DOCKER_TAG = "latest"
         EC2_HOST = "ubuntu@35.175.108.76"
@@ -11,11 +10,12 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                git branch: 'GROUP-F', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
+                checkout scm
             }
-        }   // <-- missing brace added here
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -49,23 +49,19 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
 
-                            # Install Docker if missing
                             if ! command -v docker &> /dev/null; then
                                 sudo apt-get update
                                 sudo apt-get install -y docker.io
                                 sudo usermod -aG docker ubuntu
                             fi
 
-                            # Pull latest image
-                            sudo docker pull ${DOCKER_IMAGE}
+                            sudo docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
 
-                            # Stop old container
                             sudo docker rm -f python_app || true
 
-                            # Run new container with correct port mapping
                             sudo docker run -d --name python_app \\
                                 -p ${APP_PORT_HOST}:${APP_PORT_CONTAINER} \\
-                                ${DOCKER_IMAGE}
+                                ${DOCKER_IMAGE}:${DOCKER_TAG}
 
                         '
                     """
