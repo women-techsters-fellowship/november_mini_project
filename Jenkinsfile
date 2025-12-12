@@ -2,83 +2,94 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        DOCKER_IMAGE          = 'susan22283/WTF_November_mini_project:latest'
-        EC2_USER              = 'ubuntu'
-        EC2_HOST              = '52.91.168.143'
-        APP_PORT_HOST         = '8082'   // EC2 port
-        APP_PORT_CONTAINER    = '8000'   // Django port
+        PATH = "/usr/local/bin:/usr/bin:/bin"
+        IMAGE = "naaasheley/november_mini_project"
+        EC2_IP = "3.235.182.92"
+        APP_PORT = "8000"
+        DOCKER_CMD = "/usr/local/bin/docker"
     }
 
     stages {
 
-        stage('Checkout') {
-    steps {
-        sh '''
-            mkdir -p ~/.ssh
-            ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-        '''
-        git branch: 'susan-demo', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
-    }   
-    }
-
-        stage('Build Docker Image') {
+        stage('Pre-flight Checks') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}")
+                echo "Checking Docker installation..."
+                sh '$DOCKER_CMD --version'
+
+                echo "Checking SSH access to EC2..."
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-ssh-key', 
+                        keyFileVariable: 'EC2_KEY', 
+                        usernameVariable: 'EC2_USER'
+                    )
+                ]) {
+                    sh "ssh -o StrictHostKeyChecking=no -i \$EC2_KEY \$EC2_USER@\$EC2_IP 'echo SSH connection successful!'"
                 }
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Checkout Code') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', "dockerhub-creds") {
-                        docker.image("${DOCKER_IMAGE}").push()
-                    }
+                git branch: 'GROUP-B', url: 'https://github.com/women-techsters-fellowship/november_mini_project.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '$DOCKER_CMD build -t $IMAGE .'
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker-hub', 
+                        usernameVariable: 'DOCKER_USER', 
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh '$DOCKER_CMD logout || true'
+                    sh 'echo $DOCKER_PASS | $DOCKER_CMD login -u $DOCKER_USER --password-stdin'
                 }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh '$DOCKER_CMD push $IMAGE'
             }
         }
 
         stage('Deploy to EC2') {
             steps {
-                sshagent(['ec2-ssh-key']) {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-ssh-key', 
+                        keyFileVariable: 'EC2_KEY', 
+                        usernameVariable: 'EC2_USER'
+                    )
+                ]) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
-
-                            # Install Docker if missing
-                            if ! command -v docker &> /dev/null; then
-                                sudo apt-get update
-                                sudo apt-get install -y docker.io
-                                sudo usermod -aG docker ubuntu
-                            fi
-
-                            # Pull latest image
-                            sudo docker pull ${DOCKER_IMAGE}
-
-                            # Stop old container
-                            sudo docker rm -f python_app || true
-
-                            # Run new container with correct port mapping
-                            sudo docker run -d --name python_app \\
-                            -p ${APP_PORT_HOST}:${APP_PORT_CONTAINER} \\
-                            ${DOCKER_IMAGE}
-
-                        '
+                        ssh -o StrictHostKeyChecking=no -i \$EC2_KEY \$EC2_USER@\$EC2_IP \\
+                        "docker stop groupb || true && \\
+                         docker rm groupb || true && \\
+                         docker pull ${IMAGE} && \\
+                         docker run -d --name groupb -p ${APP_PORT}:${APP_PORT} ${IMAGE}"
                     """
                 }
             }
         }
+
     }
 
     post {
         success {
-            echo "Deployment successful!"
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo "Deployment failed."
+            echo 'Pipeline failed. Check logs and fix errors.'
         }
     }
 }
