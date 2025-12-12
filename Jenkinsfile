@@ -5,7 +5,7 @@ pipeline {
         DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  
         DOCKER_IMAGE = 'jemimahbyencitrimdan/nov_mini_project:group-J' 
         EC2_HOST = 'ubuntu@51.20.66.116'
-        SSH_CREDENTIALS = 'ubuntu'       
+        SSH_CREDENTIALS = 'EC2_wtf_keypair'       
         APP_PORT = '8000'
     }
 
