@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  
-        DOCKER_IMAGE = 'jemimahbyencitrimdan/nov_mini_project:group-J' 
-        EC2_HOST = 'ubuntu@51.21.251.27'
-        SSH_CREDENTIALS = 'EC2_wtf_keypair'       
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'
+        DOCKER_IMAGE = 'jemimahbyencitrimdan/nov_mini_project:group-J'
+        EC2_HOST = credentials('EC2_HOST')
         APP_PORT = '8000'
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 git branch: 'GROUP-J',
@@ -27,11 +27,18 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS,
-                                                  usernameVariable: 'DOCKER_USER',
-                                                  passwordVariable: 'DOCKER_PASS')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: DOCKER_HUB_CREDENTIALS,
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
                     script {
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                        docker.withRegistry(
+                            'https://index.docker.io/v1/',
+                            DOCKER_HUB_CREDENTIALS
+                        ) {
                             docker.image(DOCKER_IMAGE).push()
                         }
                     }
@@ -41,14 +48,18 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                sshagent([SSH_CREDENTIALS]) {
+                withCredentials([string(credentialsId: 'EC2_KEY', variable: 'EC2_KEY')]) {
+
+                    writeFile file: 'deployment_key.pem', text: "${EC2_KEY}"
+                    sh 'chmod 600 deployment_key.pem'
+
                     sh """
-                    ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
+                    ssh -o StrictHostKeyChecking=no -i deployment_key.pem ubuntu@${EC2_HOST} << EOF
                         docker stop nov_app || true
                         docker rm nov_app || true
                         docker pull ${DOCKER_IMAGE}
                         docker run -d --name nov_app -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}
-                    '
+                    EOF
                     """
                 }
             }
@@ -64,4 +75,3 @@ pipeline {
         }
     }
 }
-    
