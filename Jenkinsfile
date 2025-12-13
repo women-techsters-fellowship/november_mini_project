@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        PROJECT_DIR = "/home/ubuntu/november_mini_project"
+        BRANCH = "GroupC"
+    }
     stages {
         stage("Checkout code") {
             steps {
@@ -53,12 +57,15 @@ pipeline {
                             mkdir -p /home/ubuntu/sqlite
 
                             # Clone project repo if it doesn't exist, else pull latest
-                            if [ ! -d "/home/ubuntu/november_mini_project" ]; then
-                                git clone https://github.com/women-techsters-fellowship/november_mini_project.git /home/ubuntu/november_mini_project
-                            else
-                                cd /home/ubuntu/november_mini_project
-                                git pull
+                            if [ ! -d "$PROJECT_DIR" ]; then
+                                git clone https://github.com/women-techsters-fellowship/november_mini_project.git "$PROJECT_DIR"
                             fi
+
+                            cd "$PROJECT_DIR" || exit 1
+
+                            git fetch origin
+                            git checkout "$BRANCH"
+                                git pull origin "$BRANCH"
 
                             # Copy db.sqlite3 to persistent folder
                             cp /home/ubuntu/november_mini_project/db.sqlite3 /home/ubuntu/sqlite/db.sqlite3
