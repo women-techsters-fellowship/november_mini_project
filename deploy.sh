@@ -19,7 +19,7 @@ echo "Starting new container"
 docker run -d \
   --name $CONTAINER_NAME \
   -v $SQLITE_HOST_PATH:$SQLITE_CONTAINER_PATH \
-  -p 8080:8080 \
+  -p 8000:8080 \
   $IMAGE_NAME
 
 echo "Deployment is successful"
