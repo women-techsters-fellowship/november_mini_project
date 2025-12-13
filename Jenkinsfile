@@ -59,25 +59,23 @@ pipeline {
                             rm -rf "\$PROJECT_DIR"
                         fi
 
-                        # Remove old SQLite if you want a clean DB (optional)
-                        rm -rf /home/ubuntu/sqlite
 
                         # Prepare persistent folder for SQLite
                         mkdir -p /home/ubuntu/sqlite
 
                         # Clone project repo if it doesn't exist, else pull latest
-                        if [ ! -d "$PROJECT_DIR" ]; then
+                        if [ ! -d "\$PROJECT_DIR" ]; then
                             git clone https://github.com/women-techsters-fellowship/november_mini_project.git "$PROJECT_DIR"
                         fi
 
-                        cd "$PROJECT_DIR" || exit 1
+                        cd "\$PROJECT_DIR" || exit 1
                         git fetch origin
                         git checkout "$BRANCH"
-                        git reset --hard origin/"$BRANCH"
+                        git reset --hard origin/"\$BRANCH"
 
 
                         # Copy db.sqlite3 to persistent folder
-                        cp /home/ubuntu/november_mini_project/db.sqlite3 /home/ubuntu/sqlite/db.sqlite3
+                        cp "\$PROJECT_DIR/db.sqlite3" /home/ubuntu/sqlite/db.sqlite3
 
                         # Set Docker credentials
                         export DOCKER_USERNAME="$DOCKER_USERNAME"
