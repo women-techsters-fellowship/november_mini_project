@@ -1,9 +1,6 @@
 pipeline {
     agent any
-    environment {
-        PROJECT_DIR = "/home/ubuntu/november_mini_project"
-        BRANCH = "GroupC"
-    }
+   
     stages {
         stage("Checkout code") {
             steps {
@@ -36,6 +33,9 @@ pipeline {
                     sh '''
                         chmod 600 $EC2_KEY
                         ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<'EOF'
+                            PROJECT_DIR = "/home/ubuntu/november_mini_project"
+                            BRANCH = "GroupC"
+                            
                             echo "Connected to EC2"
 
                             # Install Docker if not installed
