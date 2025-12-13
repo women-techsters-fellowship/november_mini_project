@@ -33,9 +33,9 @@ pipeline {
                     sh '''
                         chmod 600 $EC2_KEY
                         ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<'EOF'
-                            PROJECT_DIR = "/home/ubuntu/november_mini_project"
-                            BRANCH = "GroupC"
-                            
+                            PROJECT_DIR="/home/ubuntu/november_mini_project"
+                            BRANCH="GroupC"
+
                             echo "Connected to EC2"
 
                             # Install Docker if not installed
@@ -65,7 +65,7 @@ pipeline {
 
                             git fetch origin
                             git checkout "$BRANCH"
-                                git pull origin "$BRANCH"
+                            git pull origin "$BRANCH"
 
                             # Copy db.sqlite3 to persistent folder
                             cp /home/ubuntu/november_mini_project/db.sqlite3 /home/ubuntu/sqlite/db.sqlite3
