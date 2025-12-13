@@ -33,50 +33,51 @@ pipeline {
                     sh '''
                         chmod 600 $EC2_KEY
                         ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<EOF
-        PROJECT_DIR="/home/ubuntu/november_mini_project"
-        BRANCH="GroupC"
+        
+                        PROJECT_DIR="/home/ubuntu/november_mini_project"
+                        BRANCH="GroupC"
 
-        echo "Connected to EC2"
+                        echo "Connected to EC2"
 
-        # Install Docker if not installed
-        if ! command -v docker &> /dev/null; then
-            sudo apt update -y
-            sudo apt install -y docker.io
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            sudo usermod -aG docker ubuntu
-        fi
+                        # Install Docker if not installed
+                        if ! command -v docker &> /dev/null; then
+                            sudo apt update -y
+                            sudo apt install -y docker.io
+                            sudo systemctl start docker
+                            sudo systemctl enable docker
+                            sudo usermod -aG docker ubuntu
+                        fi
 
-        # Install Git if not installed
-        if ! command -v git &> /dev/null; then
-            sudo apt update -y
-            sudo apt install -y git
-        fi
+                        # Install Git if not installed
+                        if ! command -v git &> /dev/null; then
+                            sudo apt update -y
+                            sudo apt install -y git
+                        fi
 
-        # Prepare persistent folder for SQLite
-        mkdir -p /home/ubuntu/sqlite
+                        # Prepare persistent folder for SQLite
+                        mkdir -p /home/ubuntu/sqlite
 
-        # Clone project repo if it doesn't exist, else pull latest
-        if [ ! -d "$PROJECT_DIR" ]; then
-            git clone https://github.com/women-techsters-fellowship/november_mini_project.git "$PROJECT_DIR"
-        fi
+                        # Clone project repo if it doesn't exist, else pull latest
+                        if [ ! -d "$PROJECT_DIR" ]; then
+                            git clone https://github.com/women-techsters-fellowship/november_mini_project.git "$PROJECT_DIR"
+                        fi
 
-        cd "$PROJECT_DIR" || exit 1
+                        cd "$PROJECT_DIR" || exit 1
+                        git fetch origin
+                        git checkout "$BRANCH"
+                        git reset --hard origin/"$BRANCH"
 
-        git fetch origin
-        git checkout "$BRANCH"
-        git pull origin "$BRANCH"
 
-        # Copy db.sqlite3 to persistent folder
-        cp /home/ubuntu/november_mini_project/db.sqlite3 /home/ubuntu/sqlite/db.sqlite3
+                        # Copy db.sqlite3 to persistent folder
+                        cp /home/ubuntu/november_mini_project/db.sqlite3 /home/ubuntu/sqlite/db.sqlite3
 
-        # Set Docker credentials
-        export DOCKER_USERNAME="$DOCKER_USERNAME"
-        export DOCKER_PASSWORD="$DOCKER_PASSWORD"
+                        # Set Docker credentials
+                        export DOCKER_USERNAME="$DOCKER_USERNAME"
+                        export DOCKER_PASSWORD="$DOCKER_PASSWORD"
 
-        # Run deploy script
-        bash ~/november_mini_project/deploy.sh
-        EOF
+                        # Run deploy script
+                        bash ~/november_mini_project/deploy.sh
+EOF
                     '''
                 }
             }
