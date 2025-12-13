@@ -32,7 +32,7 @@ pipeline {
                 ]) {
                     sh '''
                         chmod 600 $EC2_KEY
-                        ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<'EOF'
+                        ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<EOF
                             PROJECT_DIR="/home/ubuntu/november_mini_project"
                             BRANCH="GroupC"
 
