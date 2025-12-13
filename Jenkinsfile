@@ -54,6 +54,14 @@ pipeline {
                             sudo apt install -y git
                         fi
 
+                        # Remove old project folder to ensure fresh clone
+                        if [ -d "\$PROJECT_DIR" ]; then
+                            rm -rf "\$PROJECT_DIR"
+                        fi
+
+                        # Remove old SQLite if you want a clean DB (optional)
+                        rm -rf /home/ubuntu/sqlite
+
                         # Prepare persistent folder for SQLite
                         mkdir -p /home/ubuntu/sqlite
 
