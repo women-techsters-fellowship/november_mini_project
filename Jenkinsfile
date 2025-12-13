@@ -49,12 +49,12 @@ pipeline {
                     )
                 ]) {
                     sh """
-                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USER}@${EC2_HOST} << EOF
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USER}@${EC2_HOST}  "
                         docker stop nov_app || true
                         docker rm nov_app || true
                         docker pull ${DOCKER_IMAGE}
                         docker run -d --name nov_app -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}
-                    EOF
+                    "
                     """
                 }
             }
