@@ -34,8 +34,7 @@ pipeline {
                         chmod 600 $EC2_KEY
                         ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@$EC2_HOST <<EOF
         
-                        PROJECT_DIR="/home/ubuntu/november_mini_project"
-                        BRANCH="GroupC"
+                    
 
                         echo "Connected to EC2"
 
@@ -55,8 +54,8 @@ pipeline {
                         fi
 
                         # Remove old project folder to ensure fresh clone
-                        if [ -d "\$PROJECT_DIR" ]; then
-                            rm -rf "\$PROJECT_DIR"
+                        if [ -d "/home/ubuntu/november_mini_project" ]; then
+                            rm -rf "/home/ubuntu/november_mini_project"
                         fi
 
 
@@ -64,18 +63,18 @@ pipeline {
                         mkdir -p /home/ubuntu/sqlite
 
                         # Clone project repo if it doesn't exist, else pull latest
-                        if [ ! -d "\$PROJECT_DIR" ]; then
-                            git clone https://github.com/women-techsters-fellowship/november_mini_project.git "$PROJECT_DIR"
+                        if [ ! -d "/home/ubuntu/november_mini_project" ]; then
+                            git clone https://github.com/women-techsters-fellowship/november_mini_project.git "/home/ubuntu/november_mini_project"
                         fi
 
-                        cd "\$PROJECT_DIR" || exit 1
+                        cd "/home/ubuntu/november_mini_project" || exit 1
                         git fetch origin
-                        git checkout "$BRANCH"
-                        git reset --hard origin/"\$BRANCH"
+                        git checkout "GroupC"
+                        git reset --hard origin/"GroupC"
 
 
                         # Copy db.sqlite3 to persistent folder
-                        cp "\$PROJECT_DIR/db.sqlite3" /home/ubuntu/sqlite/db.sqlite3
+                        cp "/home/ubuntu/november_mini_project/db.sqlite3" /home/ubuntu/sqlite/db.sqlite3
 
                         # Set Docker credentials
                         export DOCKER_USERNAME="$DOCKER_USERNAME"
