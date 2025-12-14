@@ -1,77 +1,86 @@
+# November Mini Project  - CI/CD Pipeline Deployment
 
-# november_mini_project
-This repository holds our November mini-project
+## Project Overview
+This project demonstrates a complete CI/CD pipeline for a Python application using:
+
+- Docker
+- Jenkins
+- Docker Hub
+- AWS EC2
+
+The application is containerized, built via CI, pushed to Docker Hub, and deployed to an EC2 instance via CD without cloning the repository on the server.
+
+---
+
+## Technologies Used
+- Python
+- Docker
+- Jenkins
+- Docker Hub
+- AWS EC2
+- Git & GitHub
+
+---
+
+## CI/CD Pipeline Flow
+
+1. Code is pushed to GitHub
+2. Jenkins pulls the repository
+3. Docker image is built
+4. Image is pushed to Docker Hub
+5. Jenkins connects to EC2 via SSH
+6. EC2 pulls the Docker image
+7. Container is started on EC2
+
+---
+
+## Application Access
+
+- **51.21.251.27:** 
+- **Port:** `8000`
+- **App URL:** `http://51.21.251.27:8000`
+
+---
+
+## Screenshots (Deliverables)
+
+### Jenkinsfile
+![Jenkins pipeline1](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/085f4e11-6d0d-4f20-b5e3-2624280e831e.jpg)
+
+![Jenkins pipeline2](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/7a93bbc1-3015-473f-8151-fa39447a7ae6.jpg)
+
+![Jenkins pipeline3](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/376379ce-61dc-464e-a290-9e44804ee1b5.jpg)
+
+![Jenkins pipeline4](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/1ab0c598-5995-4e39-a775-836b63e9d215.JPG)
 
 
-### Cloning the repository
+### Jenkins Job Console Output
+![Jenkins Console1](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/e5ae8955-4260-4f21-a8af-b710b6ce7e97.JPG)
 
---> Clone the repository using the command below :
-```bash
+![Jenkins Console2](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/0a97fcc9-8d1d-449f-9c3f-1c2c10dbbc43.JPG)
 
-```
+### Application Running Live
+![App Running](https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-J/screenshots/9e0c9d74-d16e-4ca7-abf0-48f544f4508e.JPG)
 
---> Move into the directory where we have the project files : 
-```bash
-cd StudyBud
+---
 
-```
-This is only needed for running this app locally
---> Create a virtual environment :
-```bash
-# Let's install virtualenv first
-pip install virtualenv
+## Contributors
+See `participants.txt` for full list of contributors.
+# Names of Group-J contributors
+1. Chidera Pamela Alaeto
+2. Jemimah Byencit Rimdan
+3. Nwaonyeoma kosisochukwu Jennifer
+4. Victoria Amarachi Philip
+5. Linda Joseph Effiong
+6. Favour Chinaza Michael
+7. Umeh Chinenye Eucharia
+8. Akande Iteoluwakiisi
+9. Patience chopetta kabeyu
+10. lydia Nganga
 
-# Then we create our virtual environment
-virtualenv envname
+---
 
-```
-
---> Activate the virtual environment :
-```bash
-envname\scripts\activate
-
-```
-
---> Install the requirements :
-```bash
-pip install -r requirements.txt
-
-```
-
-#
-
-### Running the App
-
---> To run the App, we use :
-```bash
-python manage.py runserver
-
-```
-
-> ⚠ Then, the development server will be started at http://127.0.0.1:8000/
-
-#
-
-### App Preview :
-
-<table width="100%"> 
-<tr>
-<td width="50%">      
-&nbsp; 
-<br>
-<p align="center">
-  Feed Home
-</p>
-<img src="https://user-images.githubusercontent.com/72341453/134747262-0a92233d-8010-40f8-84c5-8d94895aac44.PNG">
-</td> 
-<td width="50%">
-<br>
-<p align="center">
-  Room Conversation Preview
-</p>
-<img src="https://user-images.githubusercontent.com/72341453/134747155-3ca5b55f-b064-4741-aeae-abe90bddf41e.PNG">  
-</td>
-</table>
-
-Thank you @Divanov 11 for this project
-
+## Notes
+- The repository was **not cloned on EC2**
+- Deployment was done by pulling the Docker image from Docker Hub
+- Free-tier AWS resources were used
