@@ -5,9 +5,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        DOCKER_IMAGE          = 'susan22283/WTF_November_mini_project:latest'
+        DOCKER_IMAGE          = 'syrha/november_mini_project:latest'
         EC2_USER              = 'ubuntu'
-        EC2_HOST              = '52.91.168.143'
+        EC2_HOST              = '35.175.112.234'
         APP_PORT_HOST         = '8082'   // EC2 port
         APP_PORT_CONTAINER    = '8000'   // Django port
     }
@@ -20,7 +20,7 @@ pipeline {
             mkdir -p ~/.ssh
             ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
         '''
-        git branch: 'susan-demo', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
+        git branch: 'GROUP-D', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
     }   
     }
 
