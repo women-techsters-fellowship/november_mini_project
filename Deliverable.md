@@ -52,7 +52,7 @@ Live application running on EC2
 
 The Dockerfile defines how the StudyBud application is containerized, including installing dependencies and configuring the Django runtime environment. We also refactored the Docker file using a multi-stage Docker build to reduce the size from 500MB+ to 200MB+ 
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 58 46 PM" src="https://github.com/user-attachments/assets/8ab432d8-08d9-4137-bbd2-2f689209bc51" />
+![](<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 58 46 PM" src="https://github.com/user-attachments/assets/8ab432d8-08d9-4137-bbd2-2f689209bc51" />)
 
 
 5. Jenkins Pipeline Setup
