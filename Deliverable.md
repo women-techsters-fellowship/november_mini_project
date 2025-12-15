@@ -1,136 +1,151 @@
-StudyBud Deployment Documentation (Group C)
+# StudyBud — Deployment Documentation (Group C)
 
-Project: StudyBud
-Group: Group C
-Date: 13 Dec 2025
+**Project:** StudyBud  
+**Group:** Group C  
+**Date:** 13 Dec 2025  
 
-Live Application URL:
-👉 http://98.92.250.22:9000
+**Live Application URL:**  
+➡️ [http://98.92.250.22:9000](http://98.92.250.22:9000)
 
-1. Project Overview
+---
 
-This document describes the complete CI/CD deployment process for the StudyBud application.
-The deployment uses Jenkins, Docker, and AWS EC2 to automate building, packaging, and releasing the application.
+## 1. Project Overview
 
-The system supports persistent user data, allowing users to sign up, log in, and create posts without losing data during redeployments.
+This document describes the complete **CI/CD deployment process** for the StudyBud application.  
+The deployment uses **Jenkins, Docker, and AWS EC2** to automate building, packaging, and releasing the application.
 
-2. Architecture Summary
+The system supports **persistent user data**, allowing users to:
+- Sign up  
+- Log in after redeployment  
+- Create posts and TGroups without losing data
 
-Source Control: GitHub
+---
 
-CI/CD Tool: Jenkins
+## 2. Architecture Summary
 
-Containerization: Docker
+- **Source Control:** GitHub  
+- **CI/CD Tool:** Jenkins  
+- **Containerization:** Docker (multi-stage build)  
+- **Server:** AWS EC2 (Ubuntu 24.04 LTS)  
+- **Backend Framework:** Django  
+- **Database:** SQLite (persistent)  
+- **Branch Used:** `GroupC`
 
-Server: AWS EC2 (Ubuntu 24.04 LTS)
+---
 
-Backend Framework: Django
+## 3. Deployment Artifacts (Screenshots)
 
-Database: SQLite (persistent)
+The following deployment components were implemented and verified:
 
-Branch Used: GroupC
+- Dockerfile  
+- Jenkinsfile  
+- `buildDockerScript.sh`  
+- `deploy.sh`  
+- Django `settings.py` (`ALLOWED_HOSTS`)  
+- Jenkins successful build UI  
+- Live application running on EC2  
 
-3. Deployment Artifacts (Screenshots)
+---
 
-The following deployment components were implemented and are provided as screenshots for verification:
+## 4. Docker Configuration
 
-Dockerfile
+The Dockerfile defines how the StudyBud application is containerized.  
+We implemented a **multi-stage Docker build** to reduce the image size from ~500MB to ~200MB.
 
-Jenkinsfile
+![Dockerfile Screenshot](./images/dockerfile.png) <!-- Replace with your actual image path -->
 
-buildDockerScript.sh
+---
 
-deploy.sh
+## 5. Jenkins Pipeline Setup
 
-Django settings.py (ALLOWED_HOSTS)
+The Jenkinsfile defines the **CI/CD pipeline stages**:
+- Source code checkout  
+- Docker image build (multi-stage)  
+- Docker Hub push  
+- EC2 deployment
 
-Jenkins successful build UI
+![Jenkinsfile Screenshot 1](./images/jenkinsfile1.png)  
+![Jenkinsfile Screenshot 2](./images/jenkinsfile2.png)  
+![Jenkinsfile Screenshot 3](./images/jenkinsfile3.png)
 
-Live application running on EC2
+---
 
-4. Docker Image Configuration
+## 6. Build & Deployment Scripts
 
-The Dockerfile defines how the StudyBud application is containerized, including installing dependencies and configuring the Django runtime environment. We also refactored the Docker file using a multi-stage Docker build to reduce the size from 500MB+ to 200MB+ 
+Custom scripts were used to automate Docker image building and EC2 deployment:
 
-![Dockerfile Screenshot](https://github.com/user-attachments/assets/8ab432d8-08d9-4137-bbd2-2f689209bc51)
+- **buildDockerScript.sh**  
+  ![Build Script Screenshot](./images/buildDockerScript.png)  
 
+- **deploy.sh**  
+  ![Deploy Script Screenshot](./images/deployScript.png)  
 
-5. Jenkins Pipeline Setup
+---
 
-The Jenkinsfile defines the CI/CD pipeline stages, including source code checkout, Docker image build, Docker Hub push, and EC2 deployment.
+## 7. Django Configuration
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 56 27 PM" src="https://github.com/user-attachments/assets/91ca33dd-9f3b-4e58-865f-e021afaadb14" />
+To allow external access, the EC2 public IP was added to **ALLOWED_HOSTS** in `settings.py`.
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 56 32 PM" src="https://github.com/user-attachments/assets/ca6279f6-4a9d-43d0-a039-41ac2119b1ea" />
+![ALLOWED_HOSTS Screenshot](./images/allowedhosts.png)
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 56 35 PM" src="https://github.com/user-attachments/assets/a6241e46-23d1-42eb-a656-7629cede10da" />
+---
 
+## 8. Database Persistence (SQLite)
 
+SQLite was configured with **persistent storage on the EC2 host**, so data is retained across container restarts and redeployments.
 
-6. Build & Deployment Scripts
+**Impact:**
+- Users can sign up and log in successfully  
+- User accounts persist across deployments  
+- Users can create posts and TGroups  
+- Created content remains after container restarts
 
-Custom shell scripts were used to simplify Docker image building and application deployment on the EC2 instance.
+![SQLite Screenshot](./images/sqlite.png)
 
-buildDockerScript.sh
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 12 59 45 PM" src="https://github.com/user-attachments/assets/01ab7c9a-b88e-4c5c-8d80-2fac6c2fc9bc" />
+---
 
+## 9. Jenkins Build Verification
 
-deploy.sh
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 1 00 01 PM" src="https://github.com/user-attachments/assets/9bfbe4d7-304f-42ec-8e54-b53d1d9c4e55" />
+The Jenkins pipeline completed successfully with all stages passing.
 
+![Jenkins Build Screenshot](./images/jenkinsbuild.png)
 
+---
 
-7. Django Configuration
+## 10. Live Application Verification & Database Persistence (SQLite)
+SQLite was configured with **persistent storage on the EC2 host**, so data is retained across container restarts and redeployments.
 
-To allow external access to the application, the EC2 public IP address was added to Django’s ALLOWED_HOSTS configuration.
+**Impact:**
+- Users can sign up and log in successfully  
+- User accounts persist across deployments  
+- Users can create posts and Groups  
+- Created content remains after container restarts
 
-Screenshot: settings.py (ALLOWED_HOSTS)
+- Application running on EC2  
+- Signup page  
+- Group creation  
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 1 02 47 PM" src="https://github.com/user-attachments/assets/4d2eeb46-de37-4d9d-9a52-47524b91db42" />
+![Application Screenshot](./images/app.png)  
 
-8. Database Persistence with SQLite
+---
 
-SQLite was implemented to ensure data persistence in the containerized environment.
+## 11. Errors Encountered & Resolutions
 
-Instead of storing the database inside the Docker container (which would be lost on redeployment), the SQLite database file was mounted from the EC2 host into the container. This ensures that application data remains available even when containers are stopped, removed, or recreated.
+| Issue | Resolution |
+|-------|------------|
+| Jenkins script parsing errors | Deployment logic moved to scripts |
+| Old code running on EC2 | Clean redeployments enforced |
+| Port mismatch | Docker ports aligned with Django |
+| ALLOWED_HOSTS error | EC2 IP added |
+| Data loss on restart | SQLite persistence implemented |
 
-As a result:
+---
 
-Users can sign up and log in successfully
+## 12. Conclusion
 
-User accounts persist across deployments
+The StudyBud application was successfully deployed using a **multi-stage Docker build** in a **Jenkins CI/CD pipeline**, hosted on **AWS EC2**, and configured with **persistent SQLite storage**.  
 
-Users can create posts
+Users can interact with the application, create accounts, posts, and Groups, and data persists across redeployments.
 
-Created posts remain available after container restarts
+---
 
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 1 05 26 PM" src="https://github.com/user-attachments/assets/0966d731-fdf9-40fb-844b-bab9277ef215" />
-
-9. Jenkins Build Verification
-
-The Jenkins pipeline completed successfully with all stages passing, confirming that the CI/CD workflow executed as expected.
-
-Screenshot: Jenkins successful build (green pipeline)
-<img width="1680" height="1050" alt="Screenshot 2025-12-15 at 1 09 27 PM" src="https://github.com/user-attachments/assets/0cd8235f-4e6e-4355-a97f-b9a7451ce6f7" />
-
-
-
-11. Errors Encountered & Resolutions
-
-During deployment, the following issues were encountered and resolved:
-
-Jenkins script parsing errors were fixed by separating deployment logic into scripts.
-
-Old application versions were resolved by ensuring clean redeployments.
-
-Port mismatches between Docker and Django were corrected.
-
-Django ALLOWED_HOSTS restriction was resolved by adding the EC2 public IP.
-
-SQLite persistence was implemented to prevent data loss.
-
-These fixes resulted in a stable and reliable deployment pipeline.
-
-12. Conclusion
-
-The StudyBud application was successfully deployed using a Docker-based CI/CD pipeline with Jenkins, hosted on AWS EC2, and configured with persistent SQLite storage.
