@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "98.93.178.145",  # your EC2 public IP
+    "98.92.250.22",  # your EC2 public IP
     "localhost",
     "127.0.0.1",
     # optionally your domain if you use one
