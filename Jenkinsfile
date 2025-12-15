@@ -5,7 +5,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        DOCKER_IMAGE          = 'syrha/november_mini_project:latest'
+        DOCKER_IMAGE          = 'syrha/november_mini_project:amd64'
         EC2_USER              = 'ubuntu'
         EC2_HOST              = '35.175.112.234'
         APP_PORT_HOST         = '8082'   // EC2 port
