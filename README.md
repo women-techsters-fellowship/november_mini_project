@@ -42,6 +42,12 @@ This project demonstrates a complete CI/CD pipeline for a Python application usi
 
 ## Screenshots (Deliverables)
 
+### Jenkinsfile
+
+<img src="https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-B/static/images/Screenshot%202025-12-12%20at%201.15.07%E2%80%AFAM.png?raw=true">
+
+<img src="https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-B/static/images/Screenshot%202025-12-12%20at%201.15.28%E2%80%AFAM.png?raw=true">
+
 ### Jenkins Job Console Output
 
 **Jenkins Console 1**  
