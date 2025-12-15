@@ -1,77 +1,75 @@
+# November Mini Project - CI/CD Pipeline Deployment
 
-# november_mini_project
-This repository holds our November mini-project
+## Project Overview
+This project demonstrates a complete CI/CD pipeline for a Python application using:
+
+- Docker
+- Jenkins
+- Docker Hub
+- AWS EC2
 
 
-### Cloning the repository
 
---> Clone the repository using the command below :
-```bash
+---
 
-```
+## Technologies Used
+- Python
+- Docker
+- Jenkins
+- Docker Hub
+- AWS EC2
+- Git & GitHub
 
---> Move into the directory where we have the project files : 
-```bash
-cd StudyBud
+---
 
-```
-This is only needed for running this app locally
---> Create a virtual environment :
-```bash
-# Let's install virtualenv first
-pip install virtualenv
+## CI/CD Pipeline Flow
+1. Code is pushed to GitHub  
+2. Jenkins pulls the repository  
+3. Docker image is built  
+4. Image is pushed to Docker Hub  
+5. Jenkins connects to EC2 via SSH  
+6. EC2 pulls the Docker image  
+7. Container is started on EC2  
 
-# Then we create our virtual environment
-virtualenv envname
+---
 
-```
+## Application Access
+- **IP:** 3.235.182.92  
+- **Port:** 8000  
+- **App URL:** [http://3.235.182.92:8000/](http://3.235.182.92:8000/)
 
---> Activate the virtual environment :
-```bash
-envname\scripts\activate
+---
 
-```
+## Screenshots (Deliverables)
 
---> Install the requirements :
-```bash
-pip install -r requirements.txt
+### Jenkins Job Console Output
 
-```
+**Jenkins Console 1**  
+<img src='https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-B/static/images/Screenshot%202025-12-12%20at%201.09.36%E2%80%AFAM.png?raw=true'>
 
-#
+**Jenkins Console 2**  
+<img src="https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-B/static/images/Screenshot%202025-12-12%20at%201.09.52%E2%80%AFAM.png?raw=true">
 
-### Running the App
+### Application Running Live
 
---> To run the App, we use :
-```bash
-python manage.py runserver
+**App Running**  
+<img src="https://github.com/women-techsters-fellowship/november_mini_project/blob/GROUP-B/static/images/Screenshot%202025-12-15%20at%209.01.28%E2%80%AFPM.png?raw=true">
 
-```
+---
 
-> ⚠ Then, the development server will be started at http://127.0.0.1:8000/
+## Contributors
+See `participants.txt` for full list of contributors.
 
-#
+**Names of Group-J contributors:**  
+- Audrey Asheley Amarh
+- Miracle Olorunsola
+- Favour Lawrence
+- Mmesoma Patrick 
 
-### App Preview :
 
-<table width="100%"> 
-<tr>
-<td width="50%">      
-&nbsp; 
-<br>
-<p align="center">
-  Feed Home
-</p>
-<img src="https://user-images.githubusercontent.com/72341453/134747262-0a92233d-8010-40f8-84c5-8d94895aac44.PNG">
-</td> 
-<td width="50%">
-<br>
-<p align="center">
-  Room Conversation Preview
-</p>
-<img src="https://user-images.githubusercontent.com/72341453/134747155-3ca5b55f-b064-4741-aeae-abe90bddf41e.PNG">  
-</td>
-</table>
+---
 
-Thank you @Divanov 11 for this project
-
+## Notes
+- Application is fully containerized and deployable via Jenkins pipeline.  
+- Docker Desktop must be running locally for Jenkins to build images successfully.  
+- CI/CD setup allows deployment to EC2 without manual cloning.
