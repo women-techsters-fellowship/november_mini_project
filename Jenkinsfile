@@ -2,49 +2,47 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
+        DOCKERHUB_CREDENTIALS  = 'dockerhub-creds'
+        AWS_ACCESS_KEY_ID      = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        DOCKER_IMAGE          = 'syrha/november_project:latest'
-        EC2_USER              = 'ubuntu'
-        EC2_HOST              = '54.160.197.1'
-        APP_PORT_HOST         = '8082'   // EC2 port
-        APP_PORT_CONTAINER    = '8000'   // Django port
+        DOCKER_IMAGE           = 'syrha/november_project:latest'
+        EC2_USER               = 'ubuntu'
+        EC2_HOST               = '54.160.197.1'
+        APP_PORT_HOST          = '8082'   // EC2 port
+        APP_PORT_CONTAINER     = '8000'   // Django port
     }
 
     stages {
 
         stage('Checkout') {
-    steps {
-        sh '''
-            mkdir -p ~/.ssh
-            ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-        '''
-        git branch: 'GROUP-D', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
-    }   
-    }
-
-        stage('Build Docker Image') {
             steps {
-                script {
-                   sh '''
-                     docker buildx use amd64builder || docker buildx create --name amd64builder --use
-
-                     docker buildx build \
-                     --platform linux/amd64 \
-                     -t syrha/november_project:latest \
-                     --push .
-                   '''
-               }
+                sh '''
+                    mkdir -p ~/.ssh
+                    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+                '''
+                git branch: 'GROUP-D',
+                    url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Build & Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', "dockerhub-creds") {
-                        docker.image("${DOCKER_IMAGE}").push()
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKERHUB_USER',
+                    passwordVariable: 'DOCKERHUB_PASS'
+                )]) {
+                    sh '''
+                        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+
+                        docker buildx use amd64builder || \
+                        docker buildx create --name amd64builder --use
+
+                        docker buildx build \
+                          --platform linux/amd64 \
+                          -t syrha/november_project:latest \
+                          --push .
+                    '''
                 }
             }
         }
@@ -68,11 +66,10 @@ pipeline {
                             # Stop old container
                             sudo docker rm -f python_app || true
 
-                            # Run new container with correct port mapping
+                            # Run new container
                             sudo docker run -d --name python_app \\
-                            -p ${APP_PORT_HOST}:${APP_PORT_CONTAINER} \\
-                            ${DOCKER_IMAGE}
-
+                              -p ${APP_PORT_HOST}:${APP_PORT_CONTAINER} \\
+                              ${DOCKER_IMAGE}
                         '
                     """
                 }
