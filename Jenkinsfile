@@ -5,9 +5,9 @@ pipeline {
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
-        DOCKER_IMAGE          = 'syrha/november_mini_project:amd64'
+        DOCKER_IMAGE          = 'syrha/november_project:latest'
         EC2_USER              = 'ubuntu'
-        EC2_HOST              = '35.175.112.234'
+        EC2_HOST              = '54.160.197.1'
         APP_PORT_HOST         = '8082'   // EC2 port
         APP_PORT_CONTAINER    = '8000'   // Django port
     }
@@ -27,7 +27,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}") 
+                   sh '''
+                     docker buildx use amd64builder || docker buildx create --name amd64builder --use
+
+                     docker buildx build \
+                     --platform linux/amd64 \
+                     -t syrha/november_project:latest \
+                     --push .
+                   '''
                }
             }
         }
