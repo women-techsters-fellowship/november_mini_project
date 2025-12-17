@@ -8,6 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: GROUP J
+
  
     steps:
     - name: Checkout code
