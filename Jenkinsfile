@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+<<<<<<< HEAD
         DOCKERHUB_CREDENTIALS = 'dockerhub-creds'
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
@@ -23,20 +24,52 @@ pipeline {
         git branch: 'susan-demo', url: 'git@github.com:women-techsters-fellowship/november_mini_project.git'
     }   
     }
+=======
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-creds'  
+        DOCKER_IMAGE = 'jemimahbyencitrimdan/nov_mini_project:group-J' 
+        EC2_HOST = credentials("EC2_HOST")
+        SSH_CREDENTIALS = credentials("EC2_KEY")       
+        APP_PORT = '8000'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'GROUP-J',
+                    url: 'https://github.com/women-techsters-fellowship/november_mini_project.git'
+            }
+        }
+>>>>>>> 5946a79babf25fecdae3664edda982ca1bbece89
 
         stage('Build Docker Image') {
             steps {
                 script {
+<<<<<<< HEAD
                     docker.build("${DOCKER_IMAGE}")
+=======
+                    docker.build(DOCKER_IMAGE)
+>>>>>>> 5946a79babf25fecdae3664edda982ca1bbece89
                 }
             }
         }
 
+<<<<<<< HEAD
         stage('Push to Docker Hub') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', "dockerhub-creds") {
                         docker.image("${DOCKER_IMAGE}").push()
+=======
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS,
+                                                  usernameVariable: 'DOCKER_USER',
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    script {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS) {
+                            docker.image(DOCKER_IMAGE).push()
+                        }
+>>>>>>> 5946a79babf25fecdae3664edda982ca1bbece89
                     }
                 }
             }
@@ -44,6 +77,7 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
+<<<<<<< HEAD
                 sshagent(['ec2-ssh-key']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
@@ -67,6 +101,22 @@ pipeline {
                             ${DOCKER_IMAGE}
 
                         '
+=======
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'EC2_KEY',
+                        keyFileVariable: 'SSH_KEY_FILE',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USER}@${EC2_HOST}  "
+                        docker stop nov_app || true
+                        docker rm nov_app || true
+                        docker pull ${DOCKER_IMAGE}
+                        docker run -d --name nov_app -p ${APP_PORT}:${APP_PORT} ${DOCKER_IMAGE}
+                    "
+>>>>>>> 5946a79babf25fecdae3664edda982ca1bbece89
                     """
                 }
             }
@@ -75,10 +125,17 @@ pipeline {
 
     post {
         success {
+<<<<<<< HEAD
             echo "Deployment successful!"
         }
         failure {
             echo "Deployment failed."
+=======
+            echo 'CI/CD Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+>>>>>>> 5946a79babf25fecdae3664edda982ca1bbece89
         }
     }
 }
