@@ -7,8 +7,8 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-key')
         DOCKER_IMAGE           = 'syrha/november_project:latest'
         EC2_USER               = 'ubuntu'
-        EC2_HOST               = '54.160.197.1'
-        APP_PORT_HOST          = '8082'   // EC2 port
+        EC2_HOST               = credentials('ec2-host')
+        APP_PORT_HOST          = credentials('ec2-app-port') // EC2 port
         APP_PORT_CONTAINER     = '8000'   // Django port
     }
 
