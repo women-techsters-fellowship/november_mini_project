@@ -66,7 +66,7 @@ This project demonstrates a complete CI/CD pipeline for a Python application usi
 ## Contributors
 See `participants.txt` for full list of contributors.
 
-**Names of Group-J contributors:**  
+**Names of Group-B contributors:**  
 - Audrey Asheley Amarh
 - Miracle Olorunsola
 - Favour Lawrence
