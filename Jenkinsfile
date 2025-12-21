@@ -3,8 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "dockerhub254/group-h-python-app"
-        IMAGE_TAG  = "latest"
-        EC2_HOST   = credentials('EC2_HOST')
+        IMAGE_TAG = "latest"
     }
 
     stages {
@@ -17,20 +16,23 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                // Docker commands will run using host Docker
                 sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
-                )]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'USERNAME',
+                        passwordVariable: 'PASSWORD'
+                    )
+                ]) {
                     sh '''
-                      echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
-                      docker push $IMAGE_NAME:$IMAGE_TAG
+                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
             }
@@ -38,15 +40,30 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                sshagent(['ec2-ssh-key']) {
-                    sh """
-                      ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST './deploy.sh'
-                        docker pull $IMAGE_NAME:$IMAGE_TAG
-                        docker stop app || true
-                        docker rm app || true
-                        docker run -d -p 8000:8000 --name app $IMAGE_NAME:$IMAGE_TAG
-                      
-                    """
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'ec2-ssh-key', 
+                        keyFileVariable: 'SSH_KEY', 
+                        usernameVariable: 'SSH_USER'
+                    ),
+                    string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST')
+                ]) {
+                    sh '''
+                        chmod 600 $SSH_KEY
+                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SSH_USER@$EC2_HOST << 'EOF'
+                            echo "Connected to EC2"
+
+                            # Pull the new Docker image
+                            docker pull $IMAGE_NAME:$IMAGE_TAG
+
+                            # Stop and remove old container if it exists
+                            docker stop app || true
+                            docker rm app || true
+
+                            # Run new container
+                            docker run -d -p 8000:8000 --name app $IMAGE_NAME:$IMAGE_TAG
+                        EOF
+                    '''
                 }
             }
         }
