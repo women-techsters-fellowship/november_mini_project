@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "dockerhub254/group-h-python-app"
         IMAGE_TAG  = "latest"
-        EC2_HOST   = "100.31.136.24"
+        EC2_HOST   = credentials('EC2_HOST')
     }
 
     stages {
@@ -39,14 +39,14 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 sshagent(['ec2-ssh-key']) {
-                    sh '''
-                      ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST << EOF
+                    sh """
+                      ssh -o StrictHostKeyChecking=no ubuntu@$EC2_HOST './deploy.sh'
                         docker pull $IMAGE_NAME:$IMAGE_TAG
                         docker stop app || true
                         docker rm app || true
                         docker run -d -p 8000:8000 --name app $IMAGE_NAME:$IMAGE_TAG
-                      EOF
-                    '''
+                      
+                    """
                 }
             }
         }
