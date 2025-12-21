@@ -16,24 +16,20 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Docker commands will run using host Docker
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                script {
+                    // Using Docker Pipeline plugin - no permission issues!
+                    docker.build("${IMAGE_NAME}:${IMAGE_TAG}")
+                }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'USERNAME',
-                        passwordVariable: 'PASSWORD'
-                    )
-                ]) {
-                    sh '''
-                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
-                        docker push $IMAGE_NAME:$IMAGE_TAG
-                    '''
+                script {
+                    // Using Docker Pipeline plugin with credentials
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        docker.image("${IMAGE_NAME}:${IMAGE_TAG}").push()
+                    }
                 }
             }
         }
@@ -42,8 +38,8 @@ pipeline {
             steps {
                 withCredentials([
                     sshUserPrivateKey(
-                        credentialsId: 'ec2-ssh-key', 
-                        keyFileVariable: 'SSH_KEY', 
+                        credentialsId: 'ec2-ssh-key',
+                        keyFileVariable: 'SSH_KEY',
                         usernameVariable: 'SSH_USER'
                     ),
                     string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST')
@@ -54,19 +50,30 @@ pipeline {
                             echo "Connected to EC2"
 
                             # Pull the new Docker image
-                            docker pull $IMAGE_NAME:$IMAGE_TAG
+                            docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
                             # Stop and remove old container if it exists
                             docker stop app || true
                             docker rm app || true
 
                             # Run new container
-                            docker run -d -p 8000:8000 --name app $IMAGE_NAME:$IMAGE_TAG
+                            docker run -d -p 8000:8000 --name app ${IMAGE_NAME}:${IMAGE_TAG}
+                            
+                            # Clean up old images
+                            docker image prune -f
                         EOF
                     '''
                 }
             }
         }
     }
+    
+    post {
+        success {
+            echo "Deployment completed successfully!"
+        }
+        failure {
+            echo "Deployment failed!"
+        }
+    }
 }
-
