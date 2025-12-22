@@ -48,16 +48,6 @@ pipeline {
                     script {
                         def fullImageName = "${IMAGE_NAME}:${IMAGE_TAG}"
                         
-                        // Get the EC2 public IP first
-                       // def getPublicIP = """
-                         //   # Get EC2 public IP
-                           // PUBLIC_IP=\$(curl -s ifconfig.me)
-                            //echo "EC2 Public IP: \$PUBLIC_IP"
-                           // echo \$PUBLIC_IP
-                       // """
-                        
-                       // def publicIP = sh(script: getPublicIP, returnStdout: true).trim()
-                        
                         sh """
                             # Fix SSH key permissions
                             chmod 600 "\$SSH_KEY"
