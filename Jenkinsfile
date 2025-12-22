@@ -45,12 +45,12 @@ pipeline {
                     string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST')
                 ]) {
 
-                    sh """
+                    sh '''
                        # Fix SSH key permissions
-			 chmod 600 "\${SSH_KEY}"
+			 chmod 600 "$SSH_KEY"
 
 			# Execute deployment commands directly on EC2
-                        ssh -o StrictHostKeyChecking=no -i "\${SSH_KEY"} "\${SSH_USER}@\${EC2_HOST}" "
+                        ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" "$SSH_USER@$EC2_HOST" '
                             echo "Starting deployment on EC2"
 
                             # Pull the new Docker image
@@ -63,10 +63,14 @@ pipeline {
                             # Run new container
                             docker run -d -p 8000:8000 --name app ${IMAGE_NAME}:${IMAGE_TAG}
                             
-                            # Clean up old images
-                            docker image prune -f
-                        "
-                    """
+                    
+                        '
+                    '''
+
+				sh '''
+					chmod +x deploy.sh
+					./deploy.sh
+				'''
                 }
             }
         }
