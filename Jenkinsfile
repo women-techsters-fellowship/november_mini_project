@@ -52,7 +52,11 @@ pipeline {
                             # Fix SSH key permissions
                             chmod 600 "\$SSH_KEY"
                             
-                            # Execute deployment commands directly on EC2
+			   # Get EC2 public IP
+			    PUBLIC_IP=$(curl -s ifconfig.me)
+			    echo "EC2 Public IP: $PUBLIC_IP"
+
+                            # SSH to EC2 and run with ALLOWED_HOSTS set
                             ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" "\$SSH_USER@\$EC2_HOST" '
                                 echo "Starting deployment on EC2"
                                 
@@ -64,7 +68,7 @@ pipeline {
                                 docker rm app 2>/dev/null || true
                                 
                                 # Run new container
-                                docker run -d -p 8000:8000 --name app ${fullImageName}
+                                docker run -d -p 8000:8000 --name app -e ALLOWED_HOSTS=$PUBLIC_IP,localhost,127.0.0.1 ${fullImageName}
                                 
                                 echo "Deployment completed!"
                             '
