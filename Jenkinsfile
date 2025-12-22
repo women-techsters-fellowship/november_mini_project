@@ -44,25 +44,29 @@ pipeline {
                     ),
                     string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST')
                 ]) {
-                    sh '''
-                        chmod 600 $SSH_KEY
-                        ssh -o StrictHostKeyChecking=no -i $SSH_KEY $SSH_USER@$EC2_HOST << 'EOF'
-                            echo "Connected to EC2"
+
+                    sh """
+                       # Fix SSH key permissions
+			 chmod 600 "\${SSH_KEY}"
+
+			# Execute deployment commands directly on EC2
+                        ssh -o StrictHostKeyChecking=no -i "\${SSH_KEY"} "\${SSH_USER}@\${EC2_HOST}" "
+                            echo "Starting deployment on EC2"
 
                             # Pull the new Docker image
-                            docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker pull dockerhub254/group-h-python-app:latest
 
                             # Stop and remove old container if it exists
-                            docker stop app || true
-                            docker rm app || true
+                            docker stop app 2>/dev|| true
+                            docker rm app 2>/dev|| true
 
                             # Run new container
-                            docker run -d -p 8000:8000 --name app ${IMAGE_NAME}:${IMAGE_TAG}
+                            docker run -d -p 8000:8000 --name app dockerhub254/group-h-python-app:latest
                             
                             # Clean up old images
                             docker image prune -f
-                        EOF
-                    '''
+                        "
+                    """
                 }
             }
         }
