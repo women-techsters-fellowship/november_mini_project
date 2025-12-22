@@ -54,14 +54,14 @@ pipeline {
                             echo "Starting deployment on EC2"
 
                             # Pull the new Docker image
-                            docker pull dockerhub254/group-h-python-app:latest
+                            docker pull ${IMAGE_NAME}:${IMAGE_TAG}
 
                             # Stop and remove old container if it exists
                             docker stop app 2>/dev|| true
                             docker rm app 2>/dev|| true
 
                             # Run new container
-                            docker run -d -p 8000:8000 --name app dockerhub254/group-h-python-app:latest
+                            docker run -d -p 8000:8000 --name app ${IMAGE_NAME}:${IMAGE_TAG}
                             
                             # Clean up old images
                             docker image prune -f
