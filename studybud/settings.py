@@ -1,3 +1,5 @@
+import os
+
 """
 Django settings for studybud project.
 
@@ -25,13 +27,10 @@ SECRET_KEY = 'django-insecure-3#av2c6nptlbbb6^muqkchu&fe3wv&n$t2+g$v!ir-f5%doocb
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '100.31.136.24',
-    'localhost',
-    '127.0.0.1'
-]
-
-
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1"
+).split(",")
 
 # Application definition
 
