@@ -44,33 +44,32 @@ pipeline {
                     ),
                     string(credentialsId: 'EC2_HOST', variable: 'EC2_HOST')
                 ]) {
-
-                    sh '''
-                       # Fix SSH key permissions
-			 chmod 600 "$SSH_KEY"
-
-			# Execute deployment commands directly on EC2
-                        ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" "$SSH_USER@$EC2_HOST" '
-                            echo "Starting deployment on EC2"
-
-                            # Pull the new Docker image
-                            docker pull ${IMAGE_NAME}:${IMAGE_TAG}
-
-                            # Stop and remove old container if it exists
-                            docker stop app 2>/dev|| true
-                            docker rm app 2>/dev|| true
-
-                            # Run new container
-                            docker run -d -p 8000:8000 --name app ${IMAGE_NAME}:${IMAGE_TAG}
+                    // Use script block to handle variable substitution properly
+                    script {
+                        def fullImageName = "${IMAGE_NAME}:${IMAGE_TAG}"
+                        
+                        sh """
+                            # Fix SSH key permissions
+                            chmod 600 "\$SSH_KEY"
                             
-                    
-                        '
-                    '''
-
-				sh '''
-					chmod +x deploy.sh
-					./deploy.sh
-				'''
+                            # Execute deployment commands directly on EC2
+                            ssh -o StrictHostKeyChecking=no -i "\$SSH_KEY" "\$SSH_USER@\$EC2_HOST" '
+                                echo "Starting deployment on EC2"
+                                
+                                # Pull the new Docker image
+                                docker pull ${fullImageName}
+                                
+                                # Stop and remove old container if it exists
+                                docker stop app 2>/dev/null || true
+                                docker rm app 2>/dev/null || true
+                                
+                                # Run new container
+                                docker run -d -p 8000:8000 --name app ${fullImageName}
+                                
+                                echo "Deployment completed!"
+                            '
+                        """
+                    }
                 }
             }
         }
