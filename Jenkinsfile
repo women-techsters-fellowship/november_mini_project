@@ -49,14 +49,14 @@ pipeline {
                         def fullImageName = "${IMAGE_NAME}:${IMAGE_TAG}"
                         
                         // Get the EC2 public IP first
-                        def getPublicIP = """
-                            # Get EC2 public IP
-                            PUBLIC_IP=\$(curl -s ifconfig.me)
-                            echo "EC2 Public IP: \$PUBLIC_IP"
-                            echo \$PUBLIC_IP
-                        """
+                       // def getPublicIP = """
+                         //   # Get EC2 public IP
+                           // PUBLIC_IP=\$(curl -s ifconfig.me)
+                            //echo "EC2 Public IP: \$PUBLIC_IP"
+                           // echo \$PUBLIC_IP
+                       // """
                         
-                        def publicIP = sh(script: getPublicIP, returnStdout: true).trim()
+                       // def publicIP = sh(script: getPublicIP, returnStdout: true).trim()
                         
                         sh """
                             # Fix SSH key permissions
@@ -74,7 +74,7 @@ pipeline {
                                 docker rm app 2>/dev/null || true
                                 
                                 # Run new container with ALLOWED_HOSTS
-                                docker run -d -p 8000:8000 --name app -e ALLOWED_HOSTS="${publicIP},localhost,127.0.0.1" ${fullImageName}
+                                docker run -d -p 8000:8000 --name app -e ALLOWED_HOSTS="${EC2_HOST},localhost,127.0.0.1" ${fullImageName}
                                 
                                 echo "Deployment completed!"
                             '
