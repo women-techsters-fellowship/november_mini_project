@@ -1,39 +1,32 @@
-name: Deploy to Azure VM
-
-on:
-  push:
-    branches:
-      - GROUP-E-AZURE
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Deploy on Azure VM
-      run: |
-        ssh ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} << 'EOF'
-          set -e
+    - name: Build Docker image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/group-e-app:latest .
 
-          if [ ! -d "${{ secrets.APP_DIR }}" ]; then
-            mkdir -p ${{ secrets.APP_DIR }}
-            cd ${{ secrets.APP_DIR }}
-            git clone https://github.com/women-techsters-fellowship/november_mini_project.git .
-          else
-            cd ${{ secrets.APP_DIR }}
-            git pull origin GROUP-E-AZURE
-          fi
+    - name: Push Docker image
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/group-e-app:latest
 
-          docker compose down || true
-          docker compose up -d --build
-        EOF
+    - name: Deploy to Azure VM
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ${{ secrets.VM_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/group-e-app:latest
+          docker stop group-e-app || true
+          docker rm group-e-app || true
+          docker run -d -p 5000:5000 --name group-e-app ${{ secrets.DOCKERHUB_USERNAME }}/group-e-app:latest
+
