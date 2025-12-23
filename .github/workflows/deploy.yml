@@ -1,3 +1,11 @@
+name: Deploy Python App to Azure VM
+
+on:
+  push:
+    branches:
+      - GROUP-E-AZURE
+  workflow_dispatch:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
